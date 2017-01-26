@@ -66,7 +66,7 @@ $("document").ready(function(){
 
   $(document).on('mouseover', '.num', function(e) {
     console.log($(e.target).attr('id'));
-    playAudio(context, sounds[ $(e.target).attr('id') ] );
+    playAudio(context, sounds[ $(e.target).attr('id')[1] ] );
   });
   $(document).on('mouseleave', '.num', function(e) {
     console.log($(e.target).attr('id'));
