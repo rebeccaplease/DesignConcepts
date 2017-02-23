@@ -2,10 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Hello, World! - A-Frame</title>
+    <title>Poof</title>
     <meta name="description" content="Hello, World! - A-Frame">
     <script src="https://aframe.io/releases/0.3.2/aframe.min.js"></script>
-    <script src='https://code.jquery.com/jquery-latest.min.js'></script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.4.4/randomColor.min.js"></script>
     <script>
       var objects = [];
 
@@ -15,27 +16,57 @@
         anim.setAttribute("begin", event);
         return anim;
       }
-      function randomPos(){
-        var xP = Math.floor(Math.random()*10-5);
-        var yP = Math.floor(Math.random()*10+2);
-        var zP = Math.floor(Math.random()*10-5);
-        console.log(xP + " " + yP + " " + zP);
+      // maximum radius distance
+      function randomPos(radius){
+        var xP = Math.floor(Math.random()*radius-radius/2);
+        var yP = Math.floor(Math.random()*radius-radius/2);
+        var zP = Math.floor(Math.random()*radius-radius/2);
+        //console.log(xP + " " + yP + " " + zP);
         return { "x":xP, "y":yP, "z":zP };
       }
 
+      function changeVisibility(obj, camera){
+        var objPos = obj.getAttribute("position");
+        var camPos = camera.getAttribute("position");
+
+        if( calculateDistance(objPos, camPos) > 15) {
+          //fade away box when farther than 10
+          //obj.setAttribute('material','opacity', '0.0');
+          if( obj.is("visible") || obj.is("appearing") ){
+            obj.emit("fadeOut");
+          }
+        }
+        else {
+          //obj.setAttribute('material','opacity', '1.0');
+          if( obj.is("invisible") || obj.is("disappearing") ){
+            obj.emit("fadeIn");
+          }
+        }
+      }
+      //returns distance between two objects
+      function calculateDistance(one, two){
+        return Math.sqrt(
+          + Math.pow(one.x-two.x, 2)
+          + Math.pow(one.y-two.y, 2)
+          + Math.pow(one.z-two.z, 2) );
+      }
+
+
       AFRAME.registerComponent("shape", {
         schema  : {
-          color   : { default : "LightSteelBlue" },
+          color   : { default : "" },
+          dist    : { type: 'int', default: 70 }
         },
 
         init    : function () {
-
-          this.el.setAttribute("id", "hello");
-          this.el.setAttribute("class", "there");
-          this.el.setAttribute("position", randomPos());
-          this.el.setAttribute("material", {transparent: true, opacity: 1.0, color:this.data.color});
+          // setup attributes for shape
+          // this.el.setAttribute("id", "hello");
+          // this.el.setAttribute("class", "there");
+          var pos = randomPos(this.data.dist);
+          this.el.setAttribute("position", pos);
           this.el.setAttribute("geometry", { "primitive": "sphere" }); //randomize
           this.el.setAttribute("scale", {x:2, y:2, z:2});
+          this.data.color = randomColor();
 
           //setup appear and disappear animations
           var a_appear = createAnimation("fadeIn");
@@ -54,7 +85,8 @@
 
           this.el.appendChild(a_appear);
           this.el.appendChild(a_disappear);
-          // add event listeners for start and end of animations
+
+          // add event listeners for start and end of fade animations
           a_appear.addEventListener("animationstart", function(){
             this.el.removeState("disappearing");
             this.el.removeState("invisible");
@@ -81,82 +113,44 @@
             // console.log("invisible");
           });
           this.el.addState("visible");
+          this.el.setAttribute("material", {transparent: true, opacity: 1.0, color: this.data.color});
+          //add to objects array
           objects.push(this.el);
-        },
-        update : function() {
-
-
         },
         remove : function() {
           //remove from object array
           objects.remove(this.el);
           this.el.sceneEl.remove(this.el);
-
         }
       });
       // vary visbility if object is out of range
-      function changeVisibility(obj, camera){
-        var objPos = obj.getAttribute("position");
-        var camPos = camera.getAttribute("position");
-
-        if( calculateDistance(objPos, camPos) > 10){
-          //fade away box when farther than 10
-          //obj.setAttribute('material','opacity', '0.0');
-          if( obj.is("visible") || obj.is("appearing") ){
-            obj.emit("fadeOut");
-          }
-        }
-        else {
-          //obj.setAttribute('material','opacity', '1.0');
-          if( obj.is("invisible") || obj.is("disappearing") ){
-            obj.emit("fadeIn");
-          }
-        }
-      }
-      //returns distance between two objects
-      function calculateDistance(one, two){
-        return Math.sqrt(
-          + Math.pow(one.x-two.x, 2)
-          + Math.pow(one.y-two.y, 2)
-          + Math.pow(one.z-two.z, 2) );
-      }
-
-
 
       // setup scene
       $("document").ready(function() {
         var scene = document.querySelector('a-scene');
         // when scene is loaded
         scene.addEventListener('loaded', function (evt) {
-          // add event listeners to objects to appear and disappear
-
-
           // if the camera position changes, recalculate distance between camera and objects
-
           var camera = document.querySelector('a-camera');
           camera.addEventListener('componentchanged', function (evt) {
             if (evt.detail.name === "position") {
               //loop through and check all objects
-              if(objects.length > 0){
+              if(objects.length > 0) {
                 for(var i = 0; i < objects.length; i++){
                   changeVisibility(objects[i], camera);
                 }
               }
-              // var add = Math.floor(Math.random()*10+1);
-              // console.log(add);
-              // if(add == 1){
-              //   var poof = document.createElement("a-entity");
-              //   poof.setAttribute("shape", "color: pink");
-              //   scene.appendChild(poof);
-              // }
+              var add = Math.floor(Math.random()*25+1);
+              //console.log(add);
+              if(add == 1){
+                var poof = document.createElement("a-entity");
+                poof.setAttribute("shape", "color: pink");
+                scene.appendChild(poof);
+              }
             }
           });
-
         });
       });
-
-      //animate then delete **
-
     </script>
   </head>
   <body>
@@ -184,8 +178,8 @@
         <a-animation id="disappear" attribute="material.opacity" begin="fadeOut" dur="500" from="1.0" to="0.0" fill="backwards"></a-animation>
         <a-animation id="appear" attribute="material.opacity" begin="fadeIn" dur="500" to="1.0"></a-animation>
       </a-box> -->
-      <a-entity shape="color: blue"></a-entity>
-      <a-entity shape="color: green"></a-entity>
+      <a-entity shape="dist: 12"></a-entity>
+      <a-entity shape="dist: 8"></a-entity>
 
       <a-sky src="#skyTexture" repeat="100 100"></a-sky>
       <!-- <a-plane rotation="-90 0 0" rotation="-90 0 0" width="30" height="30"
@@ -194,8 +188,7 @@
       <a-light type="ambient" color="#445451"></a-light>
       <!-- <a-light type="point" intensity="2" position="2 4 4"></a-light> -->
 
-
-      <a-camera look-controls wasd-controls="fly: true; acceleration:100">
+      <a-camera look-controls wasd-controls="fly: true; acceleration: 100" easing="10">
         <a-cursor></a-cursor>
         <a-light></a-light>
       </a-camera>
