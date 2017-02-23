@@ -8,17 +8,7 @@
     <script src='https://code.jquery.com/jquery-latest.min.js'></script>
     <script>
       var objects = [];
-      AFRAME.registerComponent("scale-on-mouseenter", {
-        schema : {
-          to : { default: "2.5 2.5 2.5" }
-        },
-        init   : function() {
-          var data = this.data;
-          this.el.addEventListener('click', function() {
-            this.setAttribute('scale', data.to);
-          });
-        }
-      });
+
       //creates animation element to be appended to Shape
       function createAnimation(event){
         var anim = document.createElement("a-animation");
@@ -42,12 +32,10 @@
 
           this.el.setAttribute("id", "hello");
           this.el.setAttribute("class", "there");
-          this.el.setAttribute("color", "blue");
           this.el.setAttribute("position", randomPos());
-          this.el.setAttribute("material", {transparent: true, opacity: 1.0});
+          this.el.setAttribute("material", {transparent: true, opacity: 1.0, color:this.data.color});
           this.el.setAttribute("geometry", { "primitive": "sphere" }); //randomize
           this.el.setAttribute("scale", {x:2, y:2, z:2});
-
 
           //setup appear and disappear animations
           var a_appear = createAnimation("fadeIn");
@@ -71,38 +59,60 @@
             this.el.removeState("disappearing");
             this.el.removeState("invisible");
             this.el.addState("appearing");
-             console.log("appear");
+            //  console.log("appear");
           });
           a_appear.addEventListener("animationend", function(){
             this.el.removeState("disappearing");
             this.el.removeState("invisible");
             this.el.addState("visible");
-            console.log("visible");
+            // console.log("visible");
           });
 
           a_disappear.addEventListener("animationstart", function(){
             this.el.removeState("appearing");
             this.el.removeState("visible");
             this.el.addState("disappearing");
-             console.log("disappear");
+            //  console.log("disappear");
           });
           a_disappear.addEventListener("animationend", function(){
             this.el.removeState("appearing");
             this.el.removeState("visible");
             this.el.addState("invisible");
-            console.log("invisible");
+            // console.log("invisible");
           });
           this.el.addState("visible");
+          objects.push(this.el);
         },
         update : function() {
 
 
         },
         remove : function() {
+          //remove from object array
+          objects.remove(this.el);
           this.el.sceneEl.remove(this.el);
-          //remove from object array too
+
         }
       });
+      // vary visbility if object is out of range
+      function changeVisibility(obj, camera){
+        var objPos = obj.getAttribute("position");
+        var camPos = camera.getAttribute("position");
+
+        if( calculateDistance(objPos, camPos) > 10){
+          //fade away box when farther than 10
+          //obj.setAttribute('material','opacity', '0.0');
+          if( obj.is("visible") || obj.is("appearing") ){
+            obj.emit("fadeOut");
+          }
+        }
+        else {
+          //obj.setAttribute('material','opacity', '1.0');
+          if( obj.is("invisible") || obj.is("disappearing") ){
+            obj.emit("fadeIn");
+          }
+        }
+      }
       //returns distance between two objects
       function calculateDistance(one, two){
         return Math.sqrt(
@@ -111,49 +121,14 @@
           + Math.pow(one.z-two.z, 2) );
       }
 
+
+
       // setup scene
       $("document").ready(function() {
         var scene = document.querySelector('a-scene');
         // when scene is loaded
         scene.addEventListener('loaded', function (evt) {
           // add event listeners to objects to appear and disappear
-          var a_appear = document.querySelector("#appear");
-          var a_disappear = document.querySelector("#disappear");
-          a_appear.setAttribute("begin", "fadeIn");
-          a_disappear.setAttribute("begin", "fadeOut");
-          document.querySelector("#poof").addState("invisible");
-
-          a_appear.addEventListener("animationstart", function(){
-            document.querySelector("#poof").removeState("disappearing");
-            document.querySelector("#poof").removeState("invisible");
-            document.querySelector("#poof").addState("appearing");
-            // console.log("appear");
-          });
-          a_appear.addEventListener("animationend", function(){
-
-            document.querySelector("#poof").removeState("disappearing");
-            document.querySelector("#poof").removeState("invisible");
-            document.querySelector("#poof").addState("visible");
-            // console.log("visible");
-          });
-
-
-          a_disappear.addEventListener("animationstart", function(){
-
-            document.querySelector("#poof").removeState("appearing");
-            document.querySelector("#poof").removeState("visible");
-            document.querySelector("#poof").addState("disappearing");
-            // console.log("disappear");
-          });
-          a_disappear.addEventListener("animationend", function(){
-
-            document.querySelector("#poof").removeState("appearing");
-            document.querySelector("#poof").removeState("visible");
-            document.querySelector("#poof").addState("invisible");
-            // console.log("invisible");
-          });
-
-
 
 
           // if the camera position changes, recalculate distance between camera and objects
@@ -162,31 +137,24 @@
           camera.addEventListener('componentchanged', function (evt) {
             if (evt.detail.name === "position") {
               //loop through and check all objects
-              var obj = document.querySelector("a-entity");
-              var objPos = obj.getAttribute("position");
-              var camPos = camera.getAttribute("position");
-              //console.log(obj.getAttribute("material"));
-
-              if( calculateDistance(objPos, camPos) > 20){
-                //fade away box when farther than 10
-                //obj.setAttribute('material','opacity', '0.0');
-                if( obj.is("visible") || obj.is("appearing") ){
-                  obj.emit("fadeOut");
-                  // console.log("fadeOut");
+              if(objects.length > 0){
+                for(var i = 0; i < objects.length; i++){
+                  changeVisibility(objects[i], camera);
                 }
               }
-              else {
-                //obj.setAttribute('material','opacity', '1.0');
-                if( obj.is("invisible") || obj.is("disappearing") ){
-                  obj.emit("fadeIn");
-                  // console.log("fadeIn");
-                }
-              }
+              // var add = Math.floor(Math.random()*10+1);
+              // console.log(add);
+              // if(add == 1){
+              //   var poof = document.createElement("a-entity");
+              //   poof.setAttribute("shape", "color: pink");
+              //   scene.appendChild(poof);
+              // }
             }
           });
 
         });
       });
+
       //animate then delete **
 
     </script>
@@ -198,10 +166,10 @@
         <!-- <img id="boxTexture" src="https://i.imgur.com/mYmmbrp.jpg">
         <img id="skyTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
         <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg"> -->
+        <img id="skyTexture" src="congruent_pentagon.png">
       </a-assets>
 
       <a-box id="static" position="0 2 -5" rotation="0 45 45" scale="2 2 2" color="purple">
-        <!-- scale-on-mouseenter="to: 2.2 2.2 2.2"> -->
          <a-animation attribute="position" to="0 2.2 -5" direction="alternate" dur="2000"
          repeat="indefinite"></a-animation>
          <!-- These animations will start when the box is looked at. -->
@@ -210,25 +178,26 @@
         <a-animation attribute="rotation" begin="click" dur="2000" to="360 405 45"></a-animation>
       </a-box>
 
-      <a-box id="poof" color="blue" material= "transparent: true; opacity: 0.0" position="-6 4 -8">
+      <!-- <a-box id="poof" color="blue" material= "transparent: true; opacity: 0.0" position="-6 4 -8">
         <a-animation attribute="position" to="-6 4.2 -8" direction="alternate" dur="2000"
         repeat="indefinite"></a-animation>
         <a-animation id="disappear" attribute="material.opacity" begin="fadeOut" dur="500" from="1.0" to="0.0" fill="backwards"></a-animation>
         <a-animation id="appear" attribute="material.opacity" begin="fadeIn" dur="500" to="1.0"></a-animation>
-      </a-box>
+      </a-box> -->
       <a-entity shape="color: blue"></a-entity>
+      <a-entity shape="color: green"></a-entity>
 
-
-      <a-sky></a-sky>
-      <a-plane rotation="-90 0 0" rotation="-90 0 0" width="30" height="30"
-               repeat="10 10"></a-plane>
+      <a-sky src="#skyTexture" repeat="100 100"></a-sky>
+      <!-- <a-plane rotation="-90 0 0" rotation="-90 0 0" width="30" height="30"
+               repeat="10 10"></a-plane> -->
 
       <a-light type="ambient" color="#445451"></a-light>
-      <a-light type="point" intensity="2" position="2 4 4"></a-light>
+      <!-- <a-light type="point" intensity="2" position="2 4 4"></a-light> -->
 
 
-      <a-camera look-controls>
+      <a-camera look-controls wasd-controls="fly: true; acceleration:100">
         <a-cursor></a-cursor>
+        <a-light></a-light>
       </a-camera>
 
 
