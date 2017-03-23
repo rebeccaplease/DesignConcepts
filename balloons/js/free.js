@@ -5,19 +5,21 @@ AFRAME.registerSystem("free", {
   },
   init: function() {
 
-    console.log("free init!");
+    console.log("free system init!");
   },
   registerMe: function(bal) {
     console.log("registered to free");
-    //this.entities.push(el
+    //console.log(this.schema.entities.default);
+    this.schema.entities.default.push(bal); //keep track of in array
 
-    // do animation setup
   },
   unregisterMe: function (bal) {
-//var index = this.entities.indexOf(el);
-  //  this.entities.splice(index, 1
+    //remove from array
+    //var index = this.entities.indexOf(bal.el);
+    //this.schema.entities.default.__proto__.splice(index, 1);
 
-  //remove animation setup
+    //remove animation setup
+    //bal.el.removeChild(bal.el.firstChild);
     console.log("unregistered from free");
 
   },

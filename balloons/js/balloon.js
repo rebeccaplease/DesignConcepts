@@ -1,15 +1,8 @@
-var geometries = ["sphere", "tetrahedron", "dodecahedron", "octahedron", "torus", "torusKnot"];
-//creates animation element to be appended to Shape
-function createAnimation(event){
-  var anim = document.createElement("a-animation");
-  anim.setAttribute("begin", event);
-  return anim;
-}
 
-// maximum radius distance
+// maximum radial distance
 function randomPos(radius){
   var xP = Math.floor(Math.random()*radius-radius/2);
-  var yP = Math.floor(Math.random()*radius);
+  var yP = Math.floor(Math.random()*radius+ 2);
   var zP = Math.floor(Math.random()*radius-radius/2);
   //console.log(xP + " " + yP + " " + zP);
   return { "x":xP, "y":yP, "z":zP };
@@ -26,14 +19,12 @@ AFRAME.registerComponent("balloon", {
     this.pos = randomPos(this.data.dist);
     this.el.setAttribute("position", this.pos);
 
-    var pickGeo = Math.floor(Math.random()*geometries.length);
-    this.el.setAttribute("geometry", { "primitive":  geometries[pickGeo]}); //randomize
+    this.el.setAttribute("geometry", { "primitive":  "sphere"}); //randomize
     this.el.setAttribute("scale", {x:2, y:2, z:2});
     this.data.color = randomColor();
-
     //setup floating animation
     var float = document.createElement("a-animation");
-    var animPos = this.pos.x + " " + (this.pos.y+0.2)+ " "+ this.pos.z;
+    var animPos = this.pos.x + " " + (this.pos.y+0.2) + " " + this.pos.z;
 
     float.setAttribute("attribute", "position");
     float.setAttribute("to", animPos);
@@ -59,7 +50,6 @@ AFRAME.registerComponent("balloon", {
     // pop.addEventListener("animationend", function(evt){
     //   this.el.sceneEl.remove(this.el);
     // });
-
 
 
   },
