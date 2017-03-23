@@ -44,7 +44,7 @@ AFRAME.registerComponent("balloon", {
     this.el.appendChild(float);
 
     this.el.setAttribute("material", {transparent: true, opacity: 1.0, color: this.data.color});
-    AFRAME.systems["free"].prototype.registerMe(this.el);
+    AFRAME.systems["free"].prototype.registerMe(this);
 
 
     // //setup popping animation
@@ -64,8 +64,8 @@ AFRAME.registerComponent("balloon", {
 
   },
   collide : function() {
-    AFRAME.systems["free"].unregisterMe(this.el);
-    AFRAME.systems["collected"].registerMe(this);
+    AFRAME.systems["free"].prototype.unregisterMe(this);
+    AFRAME.systems["collected"].prototype.registerMe(this);
     console.log("collided!");
   },
   remove : function() {

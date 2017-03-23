@@ -24,9 +24,10 @@ AFRAME.registerSystem("collected", {
     //
     // // add to entities array to keep track of collected
     // this.entities.push(balloon.el);
+    
   },
   unregisterMe: function (el) {
-    var index = this.entities.indexOf(el);
-    this.entities.splice(index, 1);
+    //var index = this.entities.indexOf(el);
+    //this.entities.splice(index, 1);
   }
 });
