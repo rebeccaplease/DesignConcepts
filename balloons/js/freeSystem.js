@@ -12,6 +12,15 @@ AFRAME.registerSystem("free", {
     //console.log(this.schema.entities.default);
     this.schema.entities.default.push(bal); //keep track of in array
 
+    //set up flaot animation
+    float.setAttribute("attribute", "position");
+    float.setAttribute("to", animPos);
+    float.setAttribute("direction", "alternate");
+    float.setAttribute("dur", "2000");
+    float.setAttribute("repeat","indefinite");
+    float.setAttribute("delay", Math.random()*2+"");
+    this.el.appendChild(float);
+
   },
   unregisterMe: function (bal) {
     //remove from array

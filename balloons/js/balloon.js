@@ -26,13 +26,7 @@ AFRAME.registerComponent("balloon", {
     var float = document.createElement("a-animation");
     var animPos = this.pos.x + " " + (this.pos.y+0.2) + " " + this.pos.z;
 
-    float.setAttribute("attribute", "position");
-    float.setAttribute("to", animPos);
-    float.setAttribute("direction", "alternate");
-    float.setAttribute("dur", "2000");
-    float.setAttribute("repeat","indefinite");
-    float.setAttribute("delay", Math.random()*2+"");
-    this.el.appendChild(float);
+  
 
     this.el.setAttribute("material", {transparent: true, opacity: 1.0, color: this.data.color});
     AFRAME.systems["free"].prototype.registerMe(this);
