@@ -2,26 +2,28 @@
 AFRAME.registerSystem("collected", {
   init: function() {
     this.entities = [];
+    console.log("register init!");
   },
 
   registerMe: function (balloon) {
+    console.log("registered to collected");
     // remove floating animation
-    balloon.el.removeChild(balloon.childNodes[0]);
-
-    // move component to child of camera
-    var scene = document.querySelector("a-scene");
-    var camera = document.querySelector("a-camera");
-    balloon.el.sceneEl.remove(balloon.el);
-    camera.appendChild(balloon.el);
-
-    // add transition animation to end pos?
-    // change relative position to above camera
-    // use entities length for radial positioning for x and y...
-    balloon.pos = {x: 0, y: 0, z: 7};
-
-
-    // add to entities array to keep track of collected
-    this.entities.push(balloon.el);
+    // balloon.el.removeChild(balloon.childNodes[0]);
+    //
+    // // move component to child of camera
+    // var scene = document.querySelector("a-scene");
+    // var camera = document.querySelector("a-camera");
+    // balloon.el.sceneEl.remove(balloon.el);
+    // camera.appendChild(balloon.el);
+    //
+    // // add transition animation to end pos?
+    // // change relative position to above camera
+    // // use entities length for radial positioning for x and y...
+    // balloon.pos = {x: 0, y: 0, z: 7};
+    //
+    //
+    // // add to entities array to keep track of collected
+    // this.entities.push(balloon.el);
   },
   unregisterMe: function (el) {
     var index = this.entities.indexOf(el);
