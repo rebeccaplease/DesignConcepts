@@ -11,6 +11,10 @@ AFRAME.registerSystem("free", {
     console.log("registered to free");
     //console.log(this.schema.entities.default);
     this.schema.entities.default.push(bal); //keep track of in array
+    //setup floating animation
+    var float = document.createElement("a-animation");
+    var animPos = bal.pos.x + " " + (bal.pos.y+0.2) + " " + bal.pos.z;
+
 
     //set up flaot animation
     float.setAttribute("attribute", "position");
@@ -19,7 +23,7 @@ AFRAME.registerSystem("free", {
     float.setAttribute("dur", "2000");
     float.setAttribute("repeat","indefinite");
     float.setAttribute("delay", Math.random()*2+"");
-    this.el.appendChild(float);
+    bal.el.appendChild(float);
 
   },
   unregisterMe: function (bal) {

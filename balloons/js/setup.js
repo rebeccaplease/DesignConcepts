@@ -23,11 +23,21 @@ $("document").ready(function() {
     var camera = document.querySelector('a-camera');
     camera.addEventListener('componentchanged', function (evt) {
       if (evt.detail.name === "position") {
-        for(var i = 0; i < objects.length; i++){
-          if( calculateDistance( objects[i], camera ) < collideDist ) {
-            objects[i].components.balloon.__proto__.collide();
+        // for(var i = 0; i < objects.length; i++){
+        //   if( calculateDistance( objects[i], camera ) < collideDist ) {
+        //     objects[i].components.balloon.__proto__.collide();
+        //   }
+        objects = objects.filter( obj => {
+          if( calculateDistance( obj, camera ) < collideDist ) {
+            // obj.removeAttribute('balloon');
+            obj.components.balloon.__proto__.collide();
+
+            //console.log("collected");
+            return false;
           }
-        }
+          return true;
+        });
+        //}
         // //randomly add objects to scene
         // var add = Math.floor(Math.random()*25+1);
         // if(add == 1) {

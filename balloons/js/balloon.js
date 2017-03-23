@@ -22,11 +22,8 @@ AFRAME.registerComponent("balloon", {
     this.el.setAttribute("geometry", { "primitive":  "sphere"}); //randomize
     this.el.setAttribute("scale", {x:2, y:2, z:2});
     this.data.color = randomColor();
-    //setup floating animation
-    var float = document.createElement("a-animation");
-    var animPos = this.pos.x + " " + (this.pos.y+0.2) + " " + this.pos.z;
+    
 
-  
 
     this.el.setAttribute("material", {transparent: true, opacity: 1.0, color: this.data.color});
     AFRAME.systems["free"].prototype.registerMe(this);

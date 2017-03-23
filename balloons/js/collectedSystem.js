@@ -5,7 +5,7 @@ AFRAME.registerSystem("collected", {
   },
   init: function() {
     //this.schema.entities = [];
-    console.log("register system init!");
+    console.log("register system ientityEl.parentNode.removeChild(entityEl);nit!");
   },
   tick : function(){
 
@@ -15,11 +15,12 @@ AFRAME.registerSystem("collected", {
     console.log("registered to collected");
     //console.log(this.schema.entities);
 
-    // // move component to child of camera
+    // // // move component to child of camera
     // var scene = document.querySelector("a-scene");
     // var camera = document.querySelector("a-camera");
-    //balloon.el.sceneEl.remove(balloon.el); //remove from scene
-    //camera.appendChild(balloon.el); //add as child of camera
+    // //scene.removeObject3D(balloon.el); //remove from scene
+    // balloon.el.parentNode.removeChild(balloon.el);
+    // camera.appendChild(balloon.el); //add as child of camera
 
     //reposition balloon
 
