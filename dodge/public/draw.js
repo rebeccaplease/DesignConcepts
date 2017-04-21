@@ -8,10 +8,19 @@ window.onload = function() {
   var angle = 0;
   var size = 100;
 
+
+  var xdir = 1;
+  var ydir = 1;
+
+  var database = firebase.database();
+  var userRef;
+  var userID;
+
   var key_left, key_right;
   // setup canvas
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext("2d");
+
 
 
   function keyDown(evt)  {
@@ -70,33 +79,92 @@ window.onload = function() {
     }
     // if hit wall, bounce back
     if( x <= 0 || x >= 1000-size ){
-      dx *= -1;
+      xdir *= -1;
     }
     if( y <= 0 || y >= 500-size ){
-      dy *= -1;
+      ydir *= -1;
     }
 
-    x += dx*Math.cos((angle + d0)*Math.PI/180);
-    y += dy*Math.sin((angle + d0)*Math.PI/180);
+    x += xdir*dx*Math.cos((angle + d0)*Math.PI/180);
+    y += ydir*dy*Math.sin((angle + d0)*Math.PI/180);
+    userRef.update({
+      xpos: x,
+      ypos: y
+    });
 
   }
 
-  function drawChar(){
+
+  function drawChar(xpos, ypos){
     ctx.beginPath();
-    ctx.rect(x, y, size, size);
+    ctx.rect(xpos, ypos, size, size);
     ctx.stroke();
   }
 
   function draw() {
-    firebase
-    clear();
     movePos();
-    drawChar();
     requestAnimationFrame(function() {
       draw();
     });
   }
 
+  function setup() {
+
+    // // check if cache ID is present, otherwise
+    // if (typeof(Storage) !== "undefined") {
+    //     // Code for localStorage/sessionStorage.
+    //     if(localStorage.getItem("id") != null){
+    //       console.log("id found!");
+    //       userID = localStorage.id;
+    //       userRef = database.ref(userID);
+    //     }
+    //     else{
+    //       console.log("id not found!");
+    //       userRef = database.ref().push();
+    //       userID = userRef.key;
+    //       localStorage.id = userID;
+    //    }
+    // }
+    // else {
+        // Sorry! No Web Storage support..
+       userRef = database.ref().push();
+       userID = userRef.key;
+      //  localStorage.id = userID;
+    // }
+    console.log(userID);
+
+    userRef.push({
+      xpos: x,
+      ypos: y
+    });
+
+
+    // userRef.on('value', function (snap) {
+    //   clear();
+    //   drawChar(snap.child("xpos").val(), snap.child("ypos").val());
+    // });
+
+    // Loop through users in order with the forEach() method. The callback
+    // provided to forEach() will be called synchronously with a DataSnapshot
+    // for each child:
+
+    var query = firebase.database().ref().orderByKey();
+    query.on("value", function(userSnapshot) {
+      clear();
+      userSnapshot.forEach(function(posSnapshot) {
+        // console.log(posSnapshot.val());
+        drawChar(posSnapshot.child("xpos").val(), posSnapshot.child("ypos").val());
+      });
+    });
+
+
+
+
+  }
+
+  setup();
   draw();
+
+
 
 };
