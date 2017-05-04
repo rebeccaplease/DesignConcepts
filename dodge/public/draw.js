@@ -1,16 +1,13 @@
 
 window.onload = function() {
-  var x = 20;
-  var y = 20;
-  var dx = 3;
-  var dy = 3;
-  var d0 = 2;
-  var angle = 0;
-  var size = 100;
+  var x;
+  var y;
 
+  var size = 50;
 
-  var xdir = 1;
-  var ydir = 1;
+  var canvasX = 1000;
+  var canvasY = 1000;
+
 
   var database = firebase.database();
   var userRef;
@@ -20,73 +17,36 @@ window.onload = function() {
   // setup canvas
   var canvas = document.getElementById("canvas");
   var ctx = canvas.getContext("2d");
+  var keyFrame = 0;
+
+  var enemies = {}; //object to hold all of the enemy players
+
+  var moved = false;
 
 
+  // function keyDown(evt)  {
+  //   switch (evt.keyCode) {
+  //   case 37:  /* Left arrow was pressed */
+  //     key_left = true;
+  //     break;
+  //   case 39:  /* Right arrow was pressed */
+  //     key_right = true;
+  //     break;
+  //   }
+  // }
+  //
+  // function keyUp(evt) {
+  //   switch (evt.keyCode) {
+  //   case 37:  /* Left arrow was pressed */
+  //     key_left = false;
+  //     break;
+  //   case 39:  /* Right arrow was pressed */
+  //     key_right = false;
+  //     break;
+  //   }
+  // }
 
-  function keyDown(evt)  {
-    switch (evt.keyCode) {
-    case 37:  /* Left arrow was pressed */
-      key_left = true;
-      break;
-    case 39:  /* Right arrow was pressed */
-      key_right = true;
-      break;
-    }
-  }
-
-  function keyUp(evt) {
-    switch (evt.keyCode) {
-    case 37:  /* Left arrow was pressed */
-      key_left = false;
-      break;
-    case 39:  /* Right arrow was pressed */
-      key_right = false;
-      break;
-    }
-  }
-
-  window.addEventListener('keydown', keyDown, true);
-  window.addEventListener('keyup', keyUp, true);
-
-  function clear() {
-    ctx.clearRect(0, 0, 1000, 1000);
-  }
-
-  function movePos() {
-
-    if(key_left){
-      // change key operation depending on direction
-      //possible overflow?
-      // if(Math.abs(angle%360) < 180){ // headed downwards
-      //   angle -= d0;
-      // }
-      // else {
-      //   angle += d0;
-      // }
-
-      angle -= d0;
-
-    }
-    else if(key_right) {
-      // if(Math.abs(angle%360) < 180) { //headed upwards
-      //   angle += d0;
-      // }
-      // else {
-      //   angle -= d0;
-      // }
-
-      angle += d0;
-    }
-    // if hit wall, bounce back
-    if( x <= 0 || x >= 1000-size ){
-      xdir *= -1;
-    }
-    if( y <= 0 || y >= 500-size ){
-      ydir *= -1;
-    }
-
-    x += xdir*dx*Math.cos((angle + d0)*Math.PI/180);
-    y += ydir*dy*Math.sin((angle + d0)*Math.PI/180);
+  function updatePos() {
     userRef.update({
       xpos: x,
       ypos: y
@@ -94,48 +54,131 @@ window.onload = function() {
 
   }
 
+  function keyPress(evt)  {
+    if(!moved) {
+      switch (evt.keyCode) {
+      case 37:  /* Left arrow was pressed */
+        if(x > 0) {
+          x -= size;
+          moved = true;
+          updatePos();
+          console.log(x, y);
+        }
+        break;
+      case 38:  /* Up arrow was pressed */
+        if(y > 0) {
+          y -= size;
+          moved = true;
+          updatePos();
+          console.log(x, y);
+        }
+        break;
+      case 39:  /* Right arrow was pressed */
+        if(x < canvasX-size) {
+          x += size;
+          moved = true;
+          updatePos();
+          console.log(x, y);
+        }
+        break;
+      case 40:  /* Down arrow was pressed */
+        if(y < canvasY-size)  {
+          y += size;
+          moved = true;
+          updatePos();
+          console.log(x, y);
+        }
+        break;
+      }
+    }
+  }
+  function keyReleased(evt){
+    moved = false;
+  }
 
-  function drawChar(xpos, ypos){
+
+  // window.addEventListener('keydown', keyDown, true);
+  // window.addEventListener('keyup', keyUp, true);
+
+  // window.addEventListener('keypress', keyPress, true);
+  document.onkeydown = keyPress;
+  document.onkeyup = keyReleased;
+
+
+  function clearBoard() {
+    ctx.clearRect(0, 0, canvasX, canvasY);
+  }
+
+  function drawBoard(){
+    for(var row = 0; row <= canvasX; row+=size ){
+      ctx.beginPath();
+      ctx.moveTo(row,0);
+      ctx.lineTo(row, canvasY);
+      ctx.stroke();
+    }
+
+    for(var col = 0; col <= canvasY; col+=size ){
+      ctx.beginPath();
+      ctx.moveTo(0, col);
+      ctx.lineTo(canvasY, col);
+      ctx.stroke();
+    }
+  }
+
+  function drawPlayers(){
+    //draw your player
     ctx.beginPath();
-    ctx.rect(xpos, ypos, size, size);
+    ctx.arc(x+size/2, y+size/2, size/2, 0, 2*Math.PI);
     ctx.stroke();
+    for (var key in enemies){
+      ctx.beginPath();
+      ctx.arc(key.x+size/2, key.y+size/2, size/2, 0, 2*Math.PI);
+      ctx.stroke();
+    }
   }
 
-  function draw() {
-    movePos();
-    requestAnimationFrame(function() {
-      draw();
-    });
+  function drawPlayer(xpos, ypos){
+    ctx.beginPath();
+    ctx.arc(xpos+size/2, ypos+size/2, size, 0, 2*Math.PI);
+    ctx.strokeStyle="#FF0000";
+    ctx.stroke();
+    //console.log(xpos, ypos);
   }
+
 
   function setup() {
 
-    // // check if cache ID is present, otherwise
-    // if (typeof(Storage) !== "undefined") {
-    //     // Code for localStorage/sessionStorage.
-    //     if(localStorage.getItem("id") != null){
-    //       console.log("id found!");
-    //       userID = localStorage.id;
-    //       userRef = database.ref(userID);
-    //     }
-    //     else{
-    //       console.log("id not found!");
-    //       userRef = database.ref().push();
-    //       userID = userRef.key;
-    //       localStorage.id = userID;
-    //    }
-    // }
-    // else {
-        // Sorry! No Web Storage support..
+    // check if cache ID is present, otherwise
+    if (typeof(Storage) !== "undefined") {
+        // Code for localStorage/sessionStorage.
+        if(localStorage.getItem("id") != null){
+          console.log("id found!");
+          userID = localStorage.id;
+          userRef = database.ref(userID);
+        }
+        else{
+          console.log("id not found!");
+          userRef = database.ref().push();
+          userID = userRef.key;
+          localStorage.id = userID;
+       }
+    }
+    else {
+        //Sorry! No Web Storage support..
        userRef = database.ref().push();
        userID = userRef.key;
-      //  localStorage.id = userID;
-    // }
+       localStorage.id = userID;
+    }
+
+    drawBoard();
+
+    x = Math.floor(Math.random()*Math.floor(canvasX/size))*size;
+    y = Math.floor(Math.random()*Math.floor(canvasY/size))*size;
     console.log(userID);
 
-    userRef.push({
+    userRef.set({
       xpos: x,
-      ypos: y
+      ypos: y,
     });
 
 
@@ -149,18 +192,32 @@ window.onload = function() {
     // for each child:
 
     var query = firebase.database().ref().orderByKey();
+
     query.on("value", function(userSnapshot) {
-      clear();
+      //clearBoard();
       userSnapshot.forEach(function(posSnapshot) {
-        // console.log(posSnapshot.val());
-        drawChar(posSnapshot.child("xpos").val(), posSnapshot.child("ypos").val());
+        if(posSnapshot.key != userID){
+          console.log(posSnapshot.val());
+          var xpos = posSnapshot.child("xpos").val();
+          var ypos = posSnapshot.child("ypos").val();
+          //drawPlayer(xpos, ypos);
+          //drawChar(posSnapshot.child("xpos").val(), posSnapshot.child("ypos").val());
+          enemies[posSnapshot.key] =  { "x": xpos,
+                                        "y": ypos };
+        }
       });
     });
 
-
-
-
   }
+
+    function draw() {
+      clearBoard();
+      drawBoard();
+      drawPlayers();
+      requestAnimationFrame(function() {
+        draw();
+      });
+    }
 
   setup();
   draw();
