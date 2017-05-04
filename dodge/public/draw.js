@@ -53,40 +53,60 @@ window.onload = function() {
     });
 
   }
+  //return true if space is empty
+  function checkMovement(xpos, ypos){
+    //iterate through enemy players
+    for (var key in enemies){
+      if (enemies.hasOwnProperty(key)) {
+        if(enemies[key].x == xpos && enemies[key].y == ypos){
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
   function keyPress(evt)  {
     if(!moved) {
       switch (evt.keyCode) {
       case 37:  /* Left arrow was pressed */
         if(x > 0) {
-          x -= size;
-          moved = true;
-          updatePos();
-          console.log(x, y);
+          if(checkMovement(x-size, y)){
+            x -= size;
+            moved = true;
+            updatePos();
+            console.log(x, y);
+          }
         }
         break;
       case 38:  /* Up arrow was pressed */
         if(y > 0) {
-          y -= size;
-          moved = true;
-          updatePos();
-          console.log(x, y);
+          if(checkMovement(x, y-size)){
+            y -= size;
+            moved = true;
+            updatePos();
+            console.log(x, y);
+          }
         }
         break;
       case 39:  /* Right arrow was pressed */
         if(x < canvasX-size) {
-          x += size;
-          moved = true;
-          updatePos();
-          console.log(x, y);
+          if(checkMovement(x+size, y)){
+            x += size;
+            moved = true;
+            updatePos();
+            console.log(x, y);
+          }
         }
         break;
       case 40:  /* Down arrow was pressed */
         if(y < canvasY-size)  {
-          y += size;
-          moved = true;
-          updatePos();
-          console.log(x, y);
+          if(checkMovement(x, y+size)){
+            y += size;
+            moved = true;
+            updatePos();
+            console.log(x, y);
+          }
         }
         break;
       }
@@ -110,9 +130,10 @@ window.onload = function() {
   }
 
   function drawBoard(){
+
+    ctx.strokeStyle="#000000";
     for(var row = 0; row <= canvasX; row+=size ){
       ctx.beginPath();
-      ctx.strokeStyle="#000000";
       ctx.moveTo(row,0);
       ctx.lineTo(row, canvasY);
       ctx.stroke();
@@ -128,28 +149,29 @@ window.onload = function() {
 
   function drawPlayers(){
     //draw your player
+    ctx.strokeStyle="#00FF00";
     ctx.beginPath();
     ctx.arc(x+size/2, y+size/2, size/2, 0, 2*Math.PI);
-    ctx.strokeStyle="#FF0000";
     ctx.stroke();
 
+    ctx.strokeStyle="#FF0000";
+    //draw enemy players
     for (var key in enemies){
       if (enemies.hasOwnProperty(key)) {
-
         ctx.beginPath();
         ctx.arc(enemies[key].x+size/2, enemies[key].y+size/2, size/2, 0, 2*Math.PI);
         ctx.stroke();
       }
     }
   }
-
-  function drawPlayer(xpos, ypos){
-    ctx.beginPath();
-    ctx.arc(xpos+size/2, ypos+size/2, size, 0, 2*Math.PI);
-    ctx.strokeStyle="#FF0000";
-    ctx.stroke();
-    //console.log(xpos, ypos);
-  }
+  //
+  // function drawPlayer(xpos, ypos){
+  //   ctx.beginPath();
+  //   ctx.arc(xpos+size/2, ypos+size/2, size, 0, 2*Math.PI);
+  //   ctx.strokeStyle="#FF0000";
+  //   ctx.stroke();
+  //   //console.log(xpos, ypos);
+  // }
 
 
   function setup() {
