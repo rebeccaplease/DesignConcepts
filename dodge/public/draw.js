@@ -208,6 +208,7 @@ window.onload = function() {
       xpos: x,
       ypos: y,
     });
+    userRef.onDisconnect().remove();
 
 
     // userRef.on('value', function (snap) {
@@ -223,6 +224,7 @@ window.onload = function() {
 
     query.on("value", function(userSnapshot) {
       //clearBoard();
+      enemies = {};
       userSnapshot.forEach(function(posSnapshot) {
         if(posSnapshot.key != userID){
           //console.log(posSnapshot.val());
@@ -233,7 +235,9 @@ window.onload = function() {
           enemies[posSnapshot.key] =  { "x": xpos,
                                         "y": ypos };
         }
+
       });
+
       //console.log(enemies);
 
     });
