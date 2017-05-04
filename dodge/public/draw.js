@@ -112,6 +112,7 @@ window.onload = function() {
   function drawBoard(){
     for(var row = 0; row <= canvasX; row+=size ){
       ctx.beginPath();
+      ctx.strokeStyle="#000000";
       ctx.moveTo(row,0);
       ctx.lineTo(row, canvasY);
       ctx.stroke();
@@ -129,11 +130,16 @@ window.onload = function() {
     //draw your player
     ctx.beginPath();
     ctx.arc(x+size/2, y+size/2, size/2, 0, 2*Math.PI);
+    ctx.strokeStyle="#FF0000";
     ctx.stroke();
+
     for (var key in enemies){
-      ctx.beginPath();
-      ctx.arc(key.x+size/2, key.y+size/2, size/2, 0, 2*Math.PI);
-      ctx.stroke();
+      if (enemies.hasOwnProperty(key)) {
+
+        ctx.beginPath();
+        ctx.arc(enemies[key].x+size/2, enemies[key].y+size/2, size/2, 0, 2*Math.PI);
+        ctx.stroke();
+      }
     }
   }
 
@@ -149,26 +155,26 @@ window.onload = function() {
   function setup() {
 
     // check if cache ID is present, otherwise
-    if (typeof(Storage) !== "undefined") {
-        // Code for localStorage/sessionStorage.
-        if(localStorage.getItem("id") != null){
-          console.log("id found!");
-          userID = localStorage.id;
-          userRef = database.ref(userID);
-        }
-        else{
-          console.log("id not found!");
-          userRef = database.ref().push();
-          userID = userRef.key;
-          localStorage.id = userID;
-       }
-    }
-    else {
+    // if (typeof(Storage) !== "undefined") {
+    //     // Code for localStorage/sessionStorage.
+    //     if(localStorage.getItem("id") != null){
+    //       console.log("id found!");
+    //       userID = localStorage.id;
+    //       userRef = database.ref(userID);
+    //     }
+    //     else{
+    //       console.log("id not found!");
+    //       userRef = database.ref().push();
+    //       userID = userRef.key;
+    //       localStorage.id = userID;
+    //    }
+    // }
+    // else {
         //Sorry! No Web Storage support..
        userRef = database.ref().push();
        userID = userRef.key;
        localStorage.id = userID;
-    }
+    // }
 
     drawBoard();
 
@@ -197,7 +203,7 @@ window.onload = function() {
       //clearBoard();
       userSnapshot.forEach(function(posSnapshot) {
         if(posSnapshot.key != userID){
-          console.log(posSnapshot.val());
+          //console.log(posSnapshot.val());
           var xpos = posSnapshot.child("xpos").val();
           var ypos = posSnapshot.child("ypos").val();
           //drawPlayer(xpos, ypos);
@@ -206,6 +212,8 @@ window.onload = function() {
                                         "y": ypos };
         }
       });
+      //console.log(enemies);
+
     });
 
   }
