@@ -304,7 +304,9 @@ window.onload = function() {
                  //drawDefeat()
                 console.log("hit!");
                 isAlive = false;
-                window.alert("You've been hit!");
+                //window.alert("You've been hit!");
+
+                document.getElementById("message").innerHTML = "You've been hit! \n Refesh to try again :)";
              }
             bombs[snap.key] = {"x":xpos,
                                "y":ypos }
